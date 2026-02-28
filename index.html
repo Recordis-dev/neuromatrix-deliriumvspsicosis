@@ -9,36 +9,59 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        [data-lucide] { width: 20px; height: 20px; }
+    </style>
 </head>
-<body class="bg-slate-900">
+<body class="bg-slate-900 text-slate-100">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
-        // Mapeo manual de iconos de Lucide para modo CDN
-        const ShieldAlert = () => <i data-lucide="shield-alert"></i>;
-        const RefreshCw = () => <i data-lucide="refresh-cw"></i>;
-        const Info = () => <i data-lucide="info"></i>;
-        const XCircle = () => <i data-lucide="x-circle"></i>;
-        const CheckCircle2 = () => <i data-lucide="check-circle-2"></i>;
-        const Activity = () => <i data-lucide="activity"></i>;
-        const AlertTriangle = () => <i data-lucide="alert-triangle"></i>;
 
         const App = () => {
             const [currentStep, setCurrentStep] = useState(0);
             const [results, setResults] = useState({});
             const [view, setView] = useState('swipe');
 
+            // Hook para activar los iconos de Lucide después de cada renderizado
             useEffect(() => {
-                // Inicializar iconos después de cada render
-                lucide.createIcons();
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
             });
 
             const diagnosticCards = [
-                { id: 'consciousness', label: 'Nivel de Conciencia', question: '¿Hay fluctuación del nivel de conciencia o desorientación?', tags: ['Delirium'], hint: 'El delirium fluctúa; la psicosis funcional suele ser clara.' },
-                { id: 'onset', label: 'Inicio del Cuadro', question: '¿Inicio abrupto (horas/días) por consumo o abstinencia?', tags: ['Sustancias'], hint: 'Tusi/Cristal causan cuadros agudos.' },
-                { id: 'vitals', label: 'Signos Vitales', question: '¿Taquicardia, fiebre, midriasis o diaforesis?', tags: ['Autonómico'], hint: 'Indica toxicidad o Síndrome Neuroléptico Maligno.' },
-                { id: 'hallucinations', label: 'Tipo de Alucinación', question: '¿Alucinaciones principalmente VISUALES o táctiles?', tags: ['Orgánico'], hint: 'Visuales sugieren causa orgánica/tóxica.' }
+                {
+                    id: 'consciousness',
+                    label: 'Nivel de Conciencia',
+                    question: '¿Hay fluctuación del nivel de conciencia o desorientación marcada?',
+                    tags: ['Delirium', 'Tóxico'],
+                    hint: 'El delirium fluctúa; la psicosis funcional suele mantener conciencia clara.'
+                },
+                {
+                    id: 'onset',
+                    label: 'Inicio del Cuadro',
+                    question: '¿El inicio fue abrupto (horas/días) relacionado con consumo o abstinencia?',
+                    tags: ['Agudo', 'Sustancias'],
+                    hint: 'Tusi/Cristal causan cuadros agudos. La esquizofrenia es prodrómica.'
+                },
+                {
+                    id: 'vitals',
+                    label: 'Signos Vitales',
+                    question: '¿Hay taquicardia, fiebre, midriasis o diaforesis marcada?',
+                    tags: ['Autonómico', 'Simpaticomimético'],
+                    hint: 'Indica toxicidad por estimulantes o Síndrome Neuroléptico Maligno.'
+                },
+                {
+                    id: 'hallucinations',
+                    label: 'Tipo de Alucinación',
+                    question: '¿Las alucinaciones son principalmente VISUALES o táctiles?',
+                    tags: ['Orgánico', 'Inducido'],
+                    hint: 'Visuales/Táctiles sugieren causa orgánica/tóxica. Auditivas sugieren esquizofrenia.'
+                }
             ];
 
             const handleResponse = (id, value) => {
@@ -54,28 +77,42 @@
             const calculateDiagnosis = () => {
                 const { consciousness, onset, vitals } = results;
                 if (consciousness && vitals) return "DELIRIUM MIXTO (TÓXICO-METABÓLICO)";
-                if (onset && !consciousness) return "BROTE PSICÓTICO POR SUSTANCIAS";
+                if (onset && !consciousness) return "BROTE PSICÓTICO INDUCIDO POR SUSTANCIAS";
                 if (!onset && !vitals) return "ESQUIZOFRENIA / PSICOSIS CRÓNICA";
-                return "CUADRO INDETERMINADO";
+                return "CUADRO CLÍNICO INDETERMINADO - REQUIERE MONITOREO";
             };
 
             const getCriticalPath = () => {
                 const diag = calculateDiagnosis();
-                return diag.includes("DELIRIUM") 
-                    ? { tx: "Sostén, Hidratación, BZD si es abstinencia.", danger: "Evitar Quetiapina si hay sospecha anticolinérgica." }
-                    : { tx: "Olanzapina 10mg o Quetiapina 200mg.", danger: "Cuidado: Tusi + BZD = Depresión respiratoria." };
+                if (diag.includes("DELIRIUM")) {
+                    return {
+                        tx: "Sostén, Hidratación, BZD (si es abstinencia), Haloperidol dosis bajas.",
+                        danger: "EVITAR Quetiapina/Olanzapina si hay sospecha de anticolinergia."
+                    };
+                }
+                return {
+                    tx: "Olanzapina 10mg o Quetiapina 200mg. Ajustar según sedación.",
+                    danger: "Cuidado con interacción Tusi (Ketamina) + BZD: depresión severa."
+                };
+            };
+
+            const reset = () => {
+                setCurrentStep(0);
+                setResults({});
+                setView('swipe');
             };
 
             return (
-                <div className="min-h-screen text-slate-100 font-sans p-4 md:p-8">
+                <div className="min-h-screen p-4 md:p-8">
                     <header className="max-w-4xl mx-auto mb-8 flex justify-between items-center border-b border-slate-700 pb-4">
                         <div>
                             <h1 className="text-2xl font-bold text-orange-500 flex items-center gap-2">
-                                <ShieldAlert /> SCYMED REHAB MATRIX
+                                <i data-lucide="shield-alert" className="text-orange-500"></i> SCYMED REHAB MATRIX
                             </h1>
+                            <p className="text-slate-400 text-xs">Protocolo Delirium vs Psicosis 2026</p>
                         </div>
-                        <button onClick={() => {setCurrentStep(0); setView('swipe'); setResults({});}} className="p-2 hover:bg-slate-800 rounded-full">
-                            <RefreshCw />
+                        <button onClick={reset} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
+                            <i data-lucide="refresh-cw"></i>
                         </button>
                     </header>
 
@@ -84,9 +121,63 @@
                             <div className="flex flex-col items-center">
                                 <div className="w-full max-w-md bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-slate-700">
                                     <div className="p-8">
-                                        <h2 className="text-3xl font-semibold mb-2">{diagnosticCards[currentStep].label}</h2>
-                                        <p className="text-xl text-slate-300 mb-8">{diagnosticCards[currentStep].question}</p>
-                                        <div className="bg-blue-900/20 border-l-4 border-blue-500 p-4 mb-8 text-sm italic">
+                                        <div className="mb-6">
+                                            <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                                                PASO {currentStep + 1} DE {diagnosticCards.length}
+                                            </span>
+                                        </div>
+                                        <h2 className="text-2xl font-semibold mb-4">{diagnosticCards[currentStep].label}</h2>
+                                        <p className="text-lg text-slate-300 mb-8 leading-relaxed">
+                                            {diagnosticCards[currentStep].question}
+                                        </p>
+                                        <div className="bg-blue-900/20 border-l-4 border-blue-500 p-4 text-sm text-blue-200 italic">
                                             {diagnosticCards[currentStep].hint}
                                         </div>
                                     </div>
+                                    <div className="flex border-t border-slate-700">
+                                        <button onClick={() => handleResponse(diagnosticCards[currentStep].id, false)} className="flex-1 py-6 bg-slate-800 hover:bg-red-900/30 text-red-400 font-bold transition-colors">NO</button>
+                                        <button onClick={() => handleResponse(diagnosticCards[currentStep].id, true)} className="flex-1 py-6 bg-slate-800 hover:bg-green-900/30 text-green-400 font-bold border-l border-slate-700 transition-colors">SÍ</button>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                <div className="bg-orange-600 p-6 rounded-2xl shadow-xl">
+                                    <h3 className="text-xs uppercase font-bold mb-1 opacity-80">Impresión Diagnóstica</h3>
+                                    <p className="text-2xl md:text-3xl font-black">{calculateDiagnosis()}</p>
+                                </div>
+
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+                                        <h4 className="flex items-center gap-2 text-green-400 font-bold mb-4">
+                                            <i data-lucide="activity"></i> RUTA TRATAMIENTO
+                                        </h4>
+                                        <p className="text-sm leading-relaxed">{getCriticalPath().tx}</p>
+                                    </div>
+                                    <div className="bg-red-950/30 p-6 rounded-2xl border border-red-900/50">
+                                        <h4 className="flex items-center gap-2 text-red-500 font-bold mb-4">
+                                            <i data-lucide="alert-triangle"></i> RIESGOS
+                                        </h4>
+                                        <p className="text-sm font-bold text-red-200">{getCriticalPath().danger}</p>
+                                    </div>
+                                </div>
+
+                                <button onClick={reset} className="w-full py-4 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold transition-all">
+                                    NUEVO PACIENTE
+                                </button>
+                            </div>
+                        )}
+                    </main>
+
+                    <footer className="mt-12 text-center text-slate-600 text-[10px] uppercase tracking-widest">
+                        SCYMED MEDICAL DATA • REHAB MATRIX v1.0.5
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
