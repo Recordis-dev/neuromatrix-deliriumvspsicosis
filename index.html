@@ -1,186 +1,92 @@
-import React, { useState } from 'react';
-import { 
-  AlertTriangle, 
-  Brain, 
-  Zap, 
-  ShieldAlert, 
-  Activity, 
-  Info,
-  RefreshCw,
-  CheckCircle2,
-  XCircle
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCYMED REHAB MATRIX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900">
+    <div id="root"></div>
 
-const App = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [results, setResults] = useState({});
-  const [view, setView] = useState('swipe');
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        // Mapeo manual de iconos de Lucide para modo CDN
+        const ShieldAlert = () => <i data-lucide="shield-alert"></i>;
+        const RefreshCw = () => <i data-lucide="refresh-cw"></i>;
+        const Info = () => <i data-lucide="info"></i>;
+        const XCircle = () => <i data-lucide="x-circle"></i>;
+        const CheckCircle2 = () => <i data-lucide="check-circle-2"></i>;
+        const Activity = () => <i data-lucide="activity"></i>;
+        const AlertTriangle = () => <i data-lucide="alert-triangle"></i>;
 
-  const diagnosticCards = [
-    {
-      id: 'consciousness',
-      label: 'Nivel de Conciencia',
-      question: '¿Hay fluctuación del nivel de conciencia o desorientación marcada?',
-      tags: ['Delirium', 'Tóxico'],
-      hint: 'El delirium fluctúa; la psicosis funcional suele mantener conciencia clara.'
-    },
-    {
-      id: 'onset',
-      label: 'Inicio del Cuadro',
-      question: '¿El inicio fue abrupto (horas/días) relacionado con consumo o abstinencia?',
-      tags: ['Agudo', 'Sustancias'],
-      hint: 'Tusi/Cristal causan cuadros agudos. La esquizofrenia es prodrómica.'
-    },
-    {
-      id: 'vitals',
-      label: 'Signos Vitales',
-      question: '¿Hay taquicardia, fiebre, midriasis o diaforesis marcada?',
-      tags: ['Autonómico', 'Simpaticomimético'],
-      hint: 'Indica toxicidad por estimulantes o Síndrome Neuroléptico Maligno.'
-    },
-    {
-      id: 'hallucinations',
-      label: 'Tipo de Alucinación',
-      question: '¿Las alucinaciones son principalmente VISUALES o táctiles?',
-      tags: ['Orgánico', 'Inducido'],
-      hint: 'Visuales/Táctiles sugieren causa orgánica/tóxica. Auditivas sugieren esquizofrenia.'
-    }
-  ];
+        const App = () => {
+            const [currentStep, setCurrentStep] = useState(0);
+            const [results, setResults] = useState({});
+            const [view, setView] = useState('swipe');
 
-  const handleResponse = (id, value) => {
-    const newResults = { ...results, [id]: value };
-    setResults(newResults);
-    if (currentStep < diagnosticCards.length - 1) {
-      setCurrentStep(prev => prev + 1);
-    } else {
-      setView('matrix');
-    }
-  };
+            useEffect(() => {
+                // Inicializar iconos después de cada render
+                lucide.createIcons();
+            });
 
-  const calculateDiagnosis = () => {
-    const { consciousness, onset, vitals } = results;
-    if (consciousness && vitals) return "DELIRIUM MIXTO (TÓXICO-METABÓLICO)";
-    if (onset && !consciousness) return "BROTE PSICÓTICO INDUCIDO POR SUSTANCIAS";
-    if (!onset && !vitals) return "ESQUIZOFRENIA / PSICOSIS CRÓNICA";
-    return "CUADRO CLÍNICO INDETERMINADO - REQUIERE MONITOREO";
-  };
+            const diagnosticCards = [
+                { id: 'consciousness', label: 'Nivel de Conciencia', question: '¿Hay fluctuación del nivel de conciencia o desorientación?', tags: ['Delirium'], hint: 'El delirium fluctúa; la psicosis funcional suele ser clara.' },
+                { id: 'onset', label: 'Inicio del Cuadro', question: '¿Inicio abrupto (horas/días) por consumo o abstinencia?', tags: ['Sustancias'], hint: 'Tusi/Cristal causan cuadros agudos.' },
+                { id: 'vitals', label: 'Signos Vitales', question: '¿Taquicardia, fiebre, midriasis o diaforesis?', tags: ['Autonómico'], hint: 'Indica toxicidad o Síndrome Neuroléptico Maligno.' },
+                { id: 'hallucinations', label: 'Tipo de Alucinación', question: '¿Alucinaciones principalmente VISUALES o táctiles?', tags: ['Orgánico'], hint: 'Visuales sugieren causa orgánica/tóxica.' }
+            ];
 
-  const getCriticalPath = () => {
-    const diag = calculateDiagnosis();
-    if (diag.includes("DELIRIUM")) {
-      return {
-        tx: "Sostén, Hidratación, BZD (si es abstinencia), Haloperidol dosis bajas (si hay agitación grave).",
-        danger: "EVITAR Quetiapina/Olanzapina si hay sospecha de anticolinergia o depresión respiratoria.",
-        action: "Traslado a urgencias médicas si hay inestabilidad hemodinámica."
-      };
-    }
-    return {
-      tx: "Olanzapina 10mg o Quetiapina 200mg. Ajustar según sedación.",
-      danger: "Cuidado con interacción Tusi (Ketamina) + BZD: depresión severa.",
-      action: "Contención mecánica si hay riesgo para terceros."
-    };
-  };
+            const handleResponse = (id, value) => {
+                const newResults = { ...results, [id]: value };
+                setResults(newResults);
+                if (currentStep < diagnosticCards.length - 1) {
+                    setCurrentStep(prev => prev + 1);
+                } else {
+                    setView('matrix');
+                }
+            };
 
-  const resetApp = () => {
-    setCurrentStep(0);
-    setView('swipe');
-    setResults({});
-  };
+            const calculateDiagnosis = () => {
+                const { consciousness, onset, vitals } = results;
+                if (consciousness && vitals) return "DELIRIUM MIXTO (TÓXICO-METABÓLICO)";
+                if (onset && !consciousness) return "BROTE PSICÓTICO POR SUSTANCIAS";
+                if (!onset && !vitals) return "ESQUIZOFRENIA / PSICOSIS CRÓNICA";
+                return "CUADRO INDETERMINADO";
+            };
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 md:p-8">
-      <header className="max-w-4xl mx-auto mb-8 flex justify-between items-center border-b border-slate-700 pb-4">
-        <div>
-          <h1 className="text-2xl font-bold text-orange-500 flex items-center gap-2">
-            <ShieldAlert size={28} /> SCYMED REHAB MATRIX
-          </h1>
-          <p className="text-slate-400 text-sm">Delirio vs Psicosis vs Sustancias</p>
-        </div>
-        <button onClick={resetApp} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
-          <RefreshCw size={20} />
-        </button>
-      </header>
+            const getCriticalPath = () => {
+                const diag = calculateDiagnosis();
+                return diag.includes("DELIRIUM") 
+                    ? { tx: "Sostén, Hidratación, BZD si es abstinencia.", danger: "Evitar Quetiapina si hay sospecha anticolinérgica." }
+                    : { tx: "Olanzapina 10mg o Quetiapina 200mg.", danger: "Cuidado: Tusi + BZD = Depresión respiratoria." };
+            };
 
-      <main className="max-w-4xl mx-auto">
-        {view === 'swipe' && (
-          <div className="flex flex-col items-center">
-            <div className="w-full max-w-md bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-slate-700">
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-6">
-                  <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-xs font-bold uppercase">
-                    Paso {currentStep + 1} de {diagnosticCards.length}
-                  </span>
-                  <div className="flex gap-1">
-                    {diagnosticCards.map((_, i) => (
-                      <div key={i} className={`h-1.5 w-6 rounded-full ${i <= currentStep ? 'bg-orange-500' : 'bg-slate-700'}`} />
-                    ))}
-                  </div>
-                </div>
+            return (
+                <div className="min-h-screen text-slate-100 font-sans p-4 md:p-8">
+                    <header className="max-w-4xl mx-auto mb-8 flex justify-between items-center border-b border-slate-700 pb-4">
+                        <div>
+                            <h1 className="text-2xl font-bold text-orange-500 flex items-center gap-2">
+                                <ShieldAlert /> SCYMED REHAB MATRIX
+                            </h1>
+                        </div>
+                        <button onClick={() => {setCurrentStep(0); setView('swipe'); setResults({});}} className="p-2 hover:bg-slate-800 rounded-full">
+                            <RefreshCw />
+                        </button>
+                    </header>
 
-                <h2 className="text-3xl font-semibold mb-2">{diagnosticCards[currentStep].label}</h2>
-                <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                  {diagnosticCards[currentStep].question}
-                </p>
-
-                <div className="bg-blue-900/20 border-l-4 border-blue-500 p-4 mb-8">
-                  <div className="flex gap-3">
-                    <Info className="text-blue-500 shrink-0" size={20} />
-                    <p className="text-sm text-blue-200/80 italic">{diagnosticCards[currentStep].hint}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex border-t border-slate-700">
-                <button onClick={() => handleResponse(diagnosticCards[currentStep].id, false)} className="flex-1 py-6 bg-slate-800 hover:bg-red-900/30 transition-colors text-red-400 font-bold flex items-center justify-center gap-2">
-                  <XCircle size={24} /> NO
-                </button>
-                <button onClick={() => handleResponse(diagnosticCards[currentStep].id, true)} className="flex-1 py-6 bg-slate-800 hover:bg-green-900/30 transition-colors text-green-400 font-bold border-l border-slate-700 flex items-center justify-center gap-2">
-                  <CheckCircle2 size={24} /> SÍ
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {view === 'matrix' && (
-          <div className="space-y-6">
-            <div className="bg-orange-600 p-6 rounded-2xl shadow-xl">
-              <h3 className="text-sm uppercase tracking-widest font-bold mb-1 opacity-80">Impresión Diagnóstica</h3>
-              <p className="text-3xl md:text-4xl font-black">{calculateDiagnosis()}</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-                <div className="flex items-center gap-2 mb-4 text-green-400 font-bold">
-                  <Activity size={20} /> RUTA CRÍTICA TRATAMIENTO
-                </div>
-                <p className="text-slate-200 mb-4">{getCriticalPath().tx}</p>
-              </div>
-
-              <div className="bg-red-950/30 p-6 rounded-2xl border border-red-900/50">
-                <div className="flex items-center gap-2 mb-4 text-red-500 font-bold">
-                  <AlertTriangle size={20} /> RIESGOS / INTERACCIONES
-                </div>
-                <ul className="text-sm space-y-3 text-red-200/80">
-                  <li><strong>Tusi + BZD:</strong> Potencial paro respiratorio.</li>
-                  <li><strong>Cristal + Haloperidol:</strong> Riesgo de distonías.</li>
-                  <li className="font-bold text-red-400 underline">{getCriticalPath().danger}</li>
-                </ul>
-              </div>
-            </div>
-
-            <button onClick={resetApp} className="w-full py-4 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold transition-all">
-              NUEVO PACIENTE
-            </button>
-          </div>
-        )}
-      </main>
-
-      <footer className="max-w-4xl mx-auto mt-12 text-center text-slate-600 text-[10px] uppercase tracking-widest">
-        Scymed Medical Data Platform • Rehab Protocol 2026
-      </footer>
-    </div>
-  );
-};
-
-export default App;
+                    <main className="max-w-4xl mx-auto">
+                        {view === 'swipe' ? (
+                            <div className="flex flex-col items-center">
+                                <div className="w-full max-w-md bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-slate-700">
+                                    <div className="p-8">
+                                        <h2 className="text-3xl font-semibold mb-2">{diagnosticCards[currentStep].label}</h2>
+                                        <p className="text-xl text-slate-300 mb-8">{diagnosticCards[currentStep].question}</p>
+                                        <div className="bg-blue-900/20 border-l-4 border-blue-500 p-4 mb-8 text-sm italic">
+                                            {diagnosticCards[currentStep].hint}
+                                        </div>
+                                    </div>
