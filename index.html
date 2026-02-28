@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   AlertTriangle, 
   Brain, 
   Zap, 
   ShieldAlert, 
   Activity, 
-  Thermometer, 
   Info,
-  ChevronRight,
   RefreshCw,
-  Clock,
   CheckCircle2,
   XCircle
 } from 'lucide-react';
@@ -17,7 +14,7 @@ import {
 const App = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [results, setResults] = useState({});
-  const [view, setView] = useState('swipe'); // 'swipe', 'matrix', 'critical_path'
+  const [view, setView] = useState('swipe');
 
   const diagnosticCards = [
     {
@@ -51,7 +48,8 @@ const App = () => {
   ];
 
   const handleResponse = (id, value) => {
-    setResults(prev => ({ ...prev, [id]: value }));
+    const newResults = { ...results, [id]: value };
+    setResults(newResults);
     if (currentStep < diagnosticCards.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
@@ -60,7 +58,7 @@ const App = () => {
   };
 
   const calculateDiagnosis = () => {
-    const { consciousness, onset, vitals, hallucinations } = results;
+    const { consciousness, onset, vitals } = results;
     if (consciousness && vitals) return "DELIRIUM MIXTO (TÓXICO-METABÓLICO)";
     if (onset && !consciousness) return "BROTE PSICÓTICO INDUCIDO POR SUSTANCIAS";
     if (!onset && !vitals) return "ESQUIZOFRENIA / PSICOSIS CRÓNICA";
@@ -83,21 +81,24 @@ const App = () => {
     };
   };
 
+  const resetApp = () => {
+    setCurrentStep(0);
+    setView('swipe');
+    setResults({});
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 md:p-8">
-      {/* Header */}
       <header className="max-w-4xl mx-auto mb-8 flex justify-between items-center border-b border-slate-700 pb-4">
         <div>
           <h1 className="text-2xl font-bold text-orange-500 flex items-center gap-2">
             <ShieldAlert size={28} /> SCYMED REHAB MATRIX
           </h1>
-          <p className="text-slate-400 text-sm">Delirio vs Psicosis vs Sustancias (Tusi/Cristal)</p>
+          <p className="text-slate-400 text-sm">Delirio vs Psicosis vs Sustancias</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => {setCurrentStep(0); setView('swipe'); setResults({});}} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
-            <RefreshCw size={20} />
-          </button>
-        </div>
+        <button onClick={resetApp} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
+          <RefreshCw size={20} />
+        </button>
       </header>
 
       <main className="max-w-4xl mx-auto">
@@ -106,7 +107,7 @@ const App = () => {
             <div className="w-full max-w-md bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-slate-700">
               <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
-                  <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
+                  <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-xs font-bold uppercase">
                     Paso {currentStep + 1} de {diagnosticCards.length}
                   </span>
                   <div className="flex gap-1">
@@ -121,12 +122,6 @@ const App = () => {
                   {diagnosticCards[currentStep].question}
                 </p>
 
-                <div className="flex gap-2 mb-8">
-                  {diagnosticCards[currentStep].tags.map(tag => (
-                    <span key={tag} className="bg-slate-700 text-slate-400 text-[10px] px-2 py-1 rounded">#{tag}</span>
-                  ))}
-                </div>
-
                 <div className="bg-blue-900/20 border-l-4 border-blue-500 p-4 mb-8">
                   <div className="flex gap-3">
                     <Info className="text-blue-500 shrink-0" size={20} />
@@ -136,16 +131,10 @@ const App = () => {
               </div>
 
               <div className="flex border-t border-slate-700">
-                <button 
-                  onClick={() => handleResponse(diagnosticCards[currentStep].id, false)}
-                  className="flex-1 py-6 bg-slate-800 hover:bg-red-900/30 transition-colors text-red-400 font-bold flex items-center justify-center gap-2"
-                >
+                <button onClick={() => handleResponse(diagnosticCards[currentStep].id, false)} className="flex-1 py-6 bg-slate-800 hover:bg-red-900/30 transition-colors text-red-400 font-bold flex items-center justify-center gap-2">
                   <XCircle size={24} /> NO
                 </button>
-                <button 
-                  onClick={() => handleResponse(diagnosticCards[currentStep].id, true)}
-                  className="flex-1 py-6 bg-slate-800 hover:bg-green-900/30 transition-colors text-green-400 font-bold border-l border-slate-700 flex items-center justify-center gap-2"
-                >
+                <button onClick={() => handleResponse(diagnosticCards[currentStep].id, true)} className="flex-1 py-6 bg-slate-800 hover:bg-green-900/30 transition-colors text-green-400 font-bold border-l border-slate-700 flex items-center justify-center gap-2">
                   <CheckCircle2 size={24} /> SÍ
                 </button>
               </div>
@@ -156,64 +145,31 @@ const App = () => {
         {view === 'matrix' && (
           <div className="space-y-6">
             <div className="bg-orange-600 p-6 rounded-2xl shadow-xl">
-              <h3 className="text-sm uppercase tracking-widest font-bold mb-1 opacity-80">Impresión Diagnóstica Presuntiva</h3>
-              <p className="text-4xl font-black">{calculateDiagnosis()}</p>
+              <h3 className="text-sm uppercase tracking-widest font-bold mb-1 opacity-80">Impresión Diagnóstica</h3>
+              <p className="text-3xl md:text-4xl font-black">{calculateDiagnosis()}</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Ruta Crítica Tx */}
               <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
                 <div className="flex items-center gap-2 mb-4 text-green-400 font-bold">
                   <Activity size={20} /> RUTA CRÍTICA TRATAMIENTO
                 </div>
                 <p className="text-slate-200 mb-4">{getCriticalPath().tx}</p>
-                <div className="bg-slate-900 p-3 rounded-lg text-xs font-mono text-slate-400 border border-slate-700">
-                  Matrix: Haloperidol 5mg IM c/8h vs Olanzapina 10mg sublingual.
-                </div>
               </div>
 
-              {/* Alertas Farmacológicas */}
               <div className="bg-red-950/30 p-6 rounded-2xl border border-red-900/50">
                 <div className="flex items-center gap-2 mb-4 text-red-500 font-bold">
                   <AlertTriangle size={20} /> RIESGOS / INTERACCIONES
                 </div>
                 <ul className="text-sm space-y-3 text-red-200/80">
-                  <li className="flex gap-2"><span>•</span> <strong>Tusi + BZD:</strong> Potencial paro respiratorio.</li>
-                  <li className="flex gap-2"><span>•</span> <strong>Cristal + Haloperidol:</strong> Riesgo elevado de distonías agudas.</li>
-                  <li className="flex gap-2"><span>•</span> <strong>Coca + Quetiapina:</strong> Monitorear QTc (riesgo arritmia).</li>
-                  <li className="flex gap-2 font-bold text-red-400 underline"><span>!</span> {getCriticalPath().danger}</li>
+                  <li><strong>Tusi + BZD:</strong> Potencial paro respiratorio.</li>
+                  <li><strong>Cristal + Haloperidol:</strong> Riesgo de distonías.</li>
+                  <li className="font-bold text-red-400 underline">{getCriticalPath().danger}</li>
                 </ul>
               </div>
             </div>
 
-            <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 overflow-x-auto">
-              <h4 className="font-bold mb-4 text-slate-400 flex items-center gap-2">
-                <Brain size={18} /> Resumen de Hallazgos (HC Clinidata Adaptada)
-              </h4>
-              <table className="w-full text-sm text-left">
-                <thead className="text-slate-500 border-b border-slate-700">
-                  <tr>
-                    <th className="pb-2 pr-4">Parámetro</th>
-                    <th className="pb-2">Valor Detectado</th>
-                    <th className="pb-2">Conducta</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-700">
-                  {Object.entries(results).map(([key, val]) => (
-                    <tr key={key} className="hover:bg-slate-750">
-                      <td className="py-3 capitalize text-slate-400">{key.replace('_', ' ')}</td>
-                      <td className={`py-3 font-bold ${val ? 'text-orange-400' : 'text-slate-500'}`}>{val ? 'PRESENTE/SÍ' : 'AUSENTE/NO'}</td>
-                      <td className="py-3 text-xs italic text-slate-400">Normar conducta según protocolo institucional.</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <button 
-              onClick={() => {setCurrentStep(0); setView('swipe'); setResults({});}}
-              className="w-full py-4 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold transition-all"
-            >
+            <button onClick={resetApp} className="w-full py-4 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold transition-all">
               NUEVO PACIENTE
             </button>
           </div>
@@ -221,7 +177,7 @@ const App = () => {
       </main>
 
       <footer className="max-w-4xl mx-auto mt-12 text-center text-slate-600 text-[10px] uppercase tracking-widest">
-        Scymed Medical Data Platform • Rehab Protocol 2026 • v1.0.4
+        Scymed Medical Data Platform • Rehab Protocol 2026
       </footer>
     </div>
   );
