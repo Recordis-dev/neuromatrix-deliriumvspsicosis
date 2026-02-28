@@ -3,64 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCYMED REHAB MATRIX</title>
+    <title>SHIP - NEUROMATRIX</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        [data-lucide] { width: 20px; height: 20px; }
+        body { background-color: #0f172a; margin: 0; font-family: sans-serif; }
+        .lucide { display: inline-block; vertical-align: middle; width: 20px; height: 20px; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
+
+        const Icon = ({ name, className = "" }) => {
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [name]);
+            return <i data-lucide={name} className={className}></i>;
+        };
 
         const App = () => {
             const [currentStep, setCurrentStep] = useState(0);
             const [results, setResults] = useState({});
             const [view, setView] = useState('swipe');
 
-            // Hook para activar los iconos de Lucide después de cada renderizado
-            useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-            });
-
             const diagnosticCards = [
                 {
                     id: 'consciousness',
                     label: 'Nivel de Conciencia',
                     question: '¿Hay fluctuación del nivel de conciencia o desorientación marcada?',
-                    tags: ['Delirium', 'Tóxico'],
                     hint: 'El delirium fluctúa; la psicosis funcional suele mantener conciencia clara.'
                 },
                 {
                     id: 'onset',
                     label: 'Inicio del Cuadro',
                     question: '¿El inicio fue abrupto (horas/días) relacionado con consumo o abstinencia?',
-                    tags: ['Agudo', 'Sustancias'],
-                    hint: 'Tusi/Cristal causan cuadros agudos. La esquizofrenia es prodrómica.'
+                    hint: 'Sustancias como Tusi/Cristal causan cuadros agudos.'
                 },
                 {
                     id: 'vitals',
                     label: 'Signos Vitales',
                     question: '¿Hay taquicardia, fiebre, midriasis o diaforesis marcada?',
-                    tags: ['Autonómico', 'Simpaticomimético'],
-                    hint: 'Indica toxicidad por estimulantes o Síndrome Neuroléptico Maligno.'
+                    hint: 'Indica toxicidad simpaticomimética o Síndrome Neuroléptico Maligno.'
                 },
                 {
                     id: 'hallucinations',
                     label: 'Tipo de Alucinación',
                     question: '¿Las alucinaciones son principalmente VISUALES o táctiles?',
-                    tags: ['Orgánico', 'Inducido'],
-                    hint: 'Visuales/Táctiles sugieren causa orgánica/tóxica. Auditivas sugieren esquizofrenia.'
+                    hint: 'Visuales sugieren causa orgánica/tóxica. Auditivas sugieren esquizofrenia.'
                 }
             ];
 
@@ -79,7 +76,7 @@
                 if (consciousness && vitals) return "DELIRIUM MIXTO (TÓXICO-METABÓLICO)";
                 if (onset && !consciousness) return "BROTE PSICÓTICO INDUCIDO POR SUSTANCIAS";
                 if (!onset && !vitals) return "ESQUIZOFRENIA / PSICOSIS CRÓNICA";
-                return "CUADRO CLÍNICO INDETERMINADO - REQUIERE MONITOREO";
+                return "CUADRO CLÍNICO INDETERMINADO";
             };
 
             const getCriticalPath = () => {
@@ -103,16 +100,16 @@
             };
 
             return (
-                <div className="min-h-screen p-4 md:p-8">
+                <div className="min-h-screen text-slate-100 p-4 md:p-8">
                     <header className="max-w-4xl mx-auto mb-8 flex justify-between items-center border-b border-slate-700 pb-4">
                         <div>
                             <h1 className="text-2xl font-bold text-orange-500 flex items-center gap-2">
-                                <i data-lucide="shield-alert" className="text-orange-500"></i> SCYMED REHAB MATRIX
+                                <Icon name="shield-alert" /> SHIP NEUROMATRIX
                             </h1>
-                            <p className="text-slate-400 text-xs">Protocolo Delirium vs Psicosis 2026</p>
+                            <p className="text-slate-400 text-xs uppercase tracking-widest">Health Intelligence Platform</p>
                         </div>
                         <button onClick={reset} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
-                            <i data-lucide="refresh-cw"></i>
+                            <Icon name="refresh-cw" />
                         </button>
                     </header>
 
@@ -121,9 +118,9 @@
                             <div className="flex flex-col items-center">
                                 <div className="w-full max-w-md bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-slate-700">
                                     <div className="p-8">
-                                        <div className="mb-6">
-                                            <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                                                PASO {currentStep + 1} DE {diagnosticCards.length}
+                                        <div className="mb-6 flex justify-between items-center">
+                                            <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                                                PASO {currentStep + 1} / 4
                                             </span>
                                         </div>
                                         <h2 className="text-2xl font-semibold mb-4">{diagnosticCards[currentStep].label}</h2>
@@ -131,46 +128,46 @@
                                             {diagnosticCards[currentStep].question}
                                         </p>
                                         <div className="bg-blue-900/20 border-l-4 border-blue-500 p-4 text-sm text-blue-200 italic">
-                                            {diagnosticCards[currentStep].hint}
+                                            <Icon name="info" className="mr-2 inline" /> {diagnosticCards[currentStep].hint}
                                         </div>
                                     </div>
                                     <div className="flex border-t border-slate-700">
-                                        <button onClick={() => handleResponse(diagnosticCards[currentStep].id, false)} className="flex-1 py-6 bg-slate-800 hover:bg-red-900/30 text-red-400 font-bold transition-colors">NO</button>
-                                        <button onClick={() => handleResponse(diagnosticCards[currentStep].id, true)} className="flex-1 py-6 bg-slate-800 hover:bg-green-900/30 text-green-400 font-bold border-l border-slate-700 transition-colors">SÍ</button>
+                                        <button onClick={() => handleResponse(diagnosticCards[currentStep].id, false)} className="flex-1 py-6 bg-slate-800 hover:bg-red-900/30 text-red-400 font-bold text-xl transition-colors">NO</button>
+                                        <button onClick={() => handleResponse(diagnosticCards[currentStep].id, true)} className="flex-1 py-6 bg-slate-800 hover:bg-green-900/30 text-green-400 font-bold text-xl border-l border-slate-700 transition-colors">SÍ</button>
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div className="space-y-6">
                                 <div className="bg-orange-600 p-6 rounded-2xl shadow-xl">
-                                    <h3 className="text-xs uppercase font-bold mb-1 opacity-80">Impresión Diagnóstica</h3>
+                                    <h3 className="text-xs uppercase font-bold mb-1 opacity-80">Resultado Presuntivo</h3>
                                     <p className="text-2xl md:text-3xl font-black">{calculateDiagnosis()}</p>
                                 </div>
 
                                 <div className="grid md:grid-cols-2 gap-4">
                                     <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-                                        <h4 className="flex items-center gap-2 text-green-400 font-bold mb-4">
-                                            <i data-lucide="activity"></i> RUTA TRATAMIENTO
+                                        <h4 className="flex items-center gap-2 text-green-400 font-bold mb-4 uppercase text-sm">
+                                            <Icon name="activity" /> Tratamiento Sugerido
                                         </h4>
                                         <p className="text-sm leading-relaxed">{getCriticalPath().tx}</p>
                                     </div>
                                     <div className="bg-red-950/30 p-6 rounded-2xl border border-red-900/50">
-                                        <h4 className="flex items-center gap-2 text-red-500 font-bold mb-4">
-                                            <i data-lucide="alert-triangle"></i> RIESGOS
+                                        <h4 className="flex items-center gap-2 text-red-500 font-bold mb-4 uppercase text-sm">
+                                            <Icon name="alert-triangle" /> Alerta Crítica
                                         </h4>
                                         <p className="text-sm font-bold text-red-200">{getCriticalPath().danger}</p>
                                     </div>
                                 </div>
 
-                                <button onClick={reset} className="w-full py-4 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold transition-all">
-                                    NUEVO PACIENTE
+                                <button onClick={reset} className="w-full py-4 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold uppercase transition-all">
+                                    Nuevo Paciente
                                 </button>
                             </div>
                         )}
                     </main>
 
                     <footer className="mt-12 text-center text-slate-600 text-[10px] uppercase tracking-widest">
-                        SCYMED MEDICAL DATA • REHAB MATRIX v1.0.5
+                        SHIP Intelligence Protocol • 2026
                     </footer>
                 </div>
             );
